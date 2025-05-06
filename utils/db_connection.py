@@ -2,7 +2,9 @@
 """
 Database connection utilities for the unemployment forecast model.
 """
-
+from dotenv import load_dotenv
+load_dotenv()
+import os
 import cx_Oracle
 from sqlalchemy import create_engine
 
@@ -10,10 +12,11 @@ class DBConfig:
     """Database configuration parameters"""
     def __init__(self):
         # connection parameters
-        self.host = 'scdbstg-scan.scad.ae'
-        self.port = '1530'
-        self.service_name = 'SCDMSTG'
-        self.password = 'Welcome1'
+
+        self.host = os.getenv('DB_HOST')
+        self.port = os.getenv('DB_PORT')
+        self.service_name = os.getenv('DB_SERVICE_NAME')
+        self.password = os.getenv('DB_PASSWORD')
         self.userLD_POP = 'LD_COI_POP_DEMOGRAPHY'
         self.userS_POP = 'S_COI_POP_DEMOGRAPHY'
         self.userLD_ECON = 'LD_COI_ECONOMY'

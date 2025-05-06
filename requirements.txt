@@ -7,3 +7,4 @@ matplotlib>=3.4.0
 flaml>=1.0.0
 darts>=0.20.0
 openpyxl==3.1.5
+dotenv

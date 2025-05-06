@@ -109,3 +109,4 @@ Thumbs.db
 
 execution/__pycache__/unemployment_forecast.cpython-311.pyc
 execution/__pycache__/unemployment_forecast.cpython-311.pyc
+.env
