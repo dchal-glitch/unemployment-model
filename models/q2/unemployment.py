@@ -14,8 +14,8 @@ from sklearn.linear_model import Lasso
 from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.model_selection import train_test_split
 
-from ...config.parameters import get_default_parameters
-from ...utils.data_funcs import save_to_sql
+from config.parameters import get_default_parameters
+from utils.data_funcs import save_to_sql
 from ..scenario_functions import (get_data_for_what_if,
                                        scenarios_table_creator)
 
@@ -30,7 +30,7 @@ from sklearn.linear_model import Lasso
 from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.model_selection import train_test_split
 
-from ...utils.db_connection import database_engine_user, get_db_config
+from utils.db_connection import database_engine_user, get_db_config
 
 # from darts.models import NHiTSModel
 # from darts.models import NBEATSModel
@@ -384,7 +384,7 @@ def short_term_model_accuracy_1q(indicator_id, analytical_for_test, target, fore
     model_metrics["ADJUSTED R2 SCORE"] = adj_r2
     model_metrics["ACCURACY"] = round(((Acc_l2+Acc_l1)/2)*100,2)
     model_metrics["RUN_SEQ_ID"] = max_val + 1
-    model_metrics["INSERT_DT"] = datetime.datetime.now() 
+    model_metrics["INSERT_DT"] = datetime.now() 
     print(model_metrics)
     save_to_sql(model_metrics,conn,metric_table)
     delta_inacc = delta_difference * signal_model * signal_real

@@ -5,8 +5,8 @@ import pandas as pd
 from pandas.api.types import is_object_dtype
 from sqlalchemy import types
 
-from ..config.parameters import get_default_parameters
-from ..utils.db_connection import database_engine_user, get_db_config
+from config.parameters import get_default_parameters
+from utils.db_connection import database_engine_user, get_db_config
 
 lags_for_drivers = {"PMI_Whole Economy_Abu Dhabi_Three month Moving Average_Overall PMI_BACKLOGS":1,
                     "COA Comdty_MONTHLY":7,

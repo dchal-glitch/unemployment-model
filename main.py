@@ -2,9 +2,6 @@
 """
 Main entry point for the unemployment forecast model.
 """
-import sys
-import os
-sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 
 from execution.unemployment_forecast import run_unemployment_forecast
 from config.parameters import get_default_parameters

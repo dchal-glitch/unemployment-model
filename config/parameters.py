@@ -40,9 +40,9 @@ DEFAULT_CITIZEN_IDS = ['Citizen', 'Non-Citizen']
 
 ################# Select Region to be model ####################
 # DEFAULT_TARGET_REGS = ['Al Ain','Al Dhafra','Abu Dhabi']
-DEFAULT_TARGET_REGS = ['TOTAL_UNEM', 'Abu Dhabi', 'Al Ain', 'Al Dhafra']
+# DEFAULT_TARGET_REGS = ['TOTAL_UNEM', 'Abu Dhabi', 'Al Ain', 'Al Dhafra']
 # DEFAULT_TARGET_REGS = ['Abu Dhabi']
-# DEFAULT_TARGET_REGS = ['TOTAL_UNEM']
+DEFAULT_TARGET_REGS = ['TOTAL_UNEM']
 
 # Default indicator ID
 DEFAULT_INDICATOR_ID = 'COI_REALGDP_CNST'

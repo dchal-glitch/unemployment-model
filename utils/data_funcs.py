@@ -1,5 +1,5 @@
 from sqlalchemy import types
-from ..config.parameters import get_default_parameters
+from config.parameters import get_default_parameters
 
 def save_to_sql(forecast_index, engine, output_table):
     # save index data

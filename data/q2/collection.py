@@ -9,8 +9,8 @@ import pandas as pd
 
 from data.helper_funcs import data_collection, get_jv_tawteen
 
-from ...config.parameters import get_default_parameters
-from ...utils.db_connection import (
+from config.parameters import get_default_parameters
+from utils.db_connection import (
                                    database_engine_user, get_db_config)
 
 #Migrated
@@ -231,7 +231,7 @@ def load_indicators_data(indicator_id,  cdir, userSE_ECON, userLD_ECON, user_MIS
     target_ind = '4658_Emirate Of Abu Dhabi_General Index'
     analytical_df_complete = data_collection(indicator_id, deflators_calc, target_ind, userSE_ECON,
                                                   params.save_raw_analytical_df,
-                                                  params.save_transformed_analytical_df, params.sforecast_start)
+                                                  params.save_transformed_analytical_df, params.forecast_start)
     df0 = analytical_df_complete.copy()
     # df0 = analytical_df_complete
     #############################################

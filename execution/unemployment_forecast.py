@@ -7,24 +7,25 @@ import argparse
 import os
 import warnings
 
+
 import pandas as pd
 
-from ..config.parameters import (FORECAST_TYPE, PREDICTIONS_DIR,
+from config.parameters import (FORECAST_TYPE, PREDICTIONS_DIR,
                                  get_default_parameters)
-from ..utils.db_connection import get_db_config
+from utils.db_connection import get_db_config
 
 if FORECAST_TYPE == '2Q':
-    from ..data.q2.collection import (load_indicators_data, load_target_data,
+    from data.q2.collection import (load_indicators_data, load_target_data,
                                       load_target_reg_data)
-    from ..models.q2.funcs.helpers import prepare_output, save_results
-    from ..models.q2.unemployment import (forecast_accuracy_1q_func, get_model,
+    from models.q2.funcs.helpers import prepare_output, save_results
+    from models.q2.unemployment import (forecast_accuracy_1q_func, get_model,
                                           prepare_df_model,
                                           short_term_model_accuracy_1q)
 elif FORECAST_TYPE == '1Q':
-    from ..data.q1.collection import (load_indicators_data, load_target_data,
+    from data.q1.collection import (load_indicators_data, load_target_data,
                                       load_target_reg_data)
-    from ..models.q1.funcs.helpers import prepare_output, save_results
-    from ..models.q1.unemployment import (forecast_accuracy_1q_func, get_model,
+    from models.q1.funcs.helpers import prepare_output, save_results
+    from models.q1.unemployment import (forecast_accuracy_1q_func, get_model,
                                           prepare_df_model,
                                           short_term_model_accuracy_1q)
 else:
@@ -186,7 +187,7 @@ def run_unemployment_forecast(params=None):
         print(df_out)      
         # Save results to DS_UNEM_RATE_FORECAST Table in Staging Labour Force
         print('____6.2.- Save results on DB')
-        save_results(df_out, params.save_excel, params.save_oracle, citizen_id, target_reg, params.cdir)
+        save_results(df_out, params.save_excel, params.save_oracle, citizen_id, target_reg, params.predictions_dir)
     print('Unemployment forecast completed successfully')
 
 

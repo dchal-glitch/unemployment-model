@@ -1,13 +1,13 @@
 
 import datetime
 
-from utils.time_funcs import getM
-from ..utils.db_connection import database_connection_user, get_db_config
-import pandas as pd
+import matplotlib.pyplot as plt
 import numpy as np
-from ..config.constants import date_col
+import pandas as pd
 
-from ..config.constants import date_col,targets
+from config.constants import date_col, targets
+from utils.db_connection import database_connection_user, get_db_config
+from utils.time_funcs import getM
 
 DB_CONFIG = get_db_config()
 
@@ -651,7 +651,7 @@ def data_collection(indicator_id, deflators_calc, target, userSE_ECON,  save_raw
 
     # Get  RUN_SEQ_ID
     # dsn_tns = cx_Oracle.makedsn(host, port, service_name=service_name)
-    conn = database_connection_user(userSE_ECON)
+    conn,c = database_connection_user(userSE_ECON)
     try:
         df_dict = pd.read_sql('select * from ds_ri_dictionary1', con=conn)
         run_seq_ind = df_dict[df_dict['Column Name'] == 'RUN_SEQ_ID']['Indicator'].values[0]
@@ -866,14 +866,14 @@ def industry_fun(indicator_id):
     # Connection to Landing Layer
     # dsn_tns = cx_Oracle.makedsn(host, port, service_name=service_name)
     # conn = cx_Oracle.connect(user=userLD_ECON, password=password, dsn=dsn_tns, encoding="UTF-8")
-    conn = database_connection_user(DB_CONFIG.userLD_ECON)
+    conn,c = database_connection_user(DB_CONFIG.userLD_ECON)
     c = conn.cursor()
     df_lk = pd.read_sql("select * from lk_industry_sector_map", con=conn)
     c.close()
     # Connection to Staging Layer
     # dsn_tns = cx_Oracle.makedsn(host, port, service_name=service_name)
     # conn = cx_Oracle.connect(user=userSE_ECON, password=password, dsn=dsn_tns, encoding="UTF-8")
-    conn = database_connection_user(DB_CONFIG.userSE_ECON)
+    conn,c  = database_connection_user(DB_CONFIG.userSE_ECON)
     c = conn.cursor()
     gdp_table = 'scad_clnsd_gdp_prices'
     # execution_date_old_data = '20220113'
@@ -922,7 +922,7 @@ def industry_fun(indicator_id):
 
 def additional_cb():
     # Connection to Landing Layer
-    conn = database_connection_user(DB_CONFIG.userLD_ECON)
+    conn,c = database_connection_user(DB_CONFIG.userLD_ECON)
     c = conn.cursor()
     bloomberg = pd.read_sql("select * from VW_BLOOMBERG_E_A_KPIS_REMAPPED", con=conn)
     c.close()
@@ -1035,7 +1035,7 @@ def aldar_hist_price_func():
     # conn_ld, c_ld = database_connection_user(userLD_ECON)
     # dsn_tns = cx_Oracle.makedsn(host, port, service_name=service_name)
     # conn = cx_Oracle.connect(user=userSE_ECON, password=password, dsn=dsn_tns, encoding="UTF-8")
-    conn = database_connection_user(DB_CONFIG.userSE_ECON)
+    conn,c = database_connection_user(DB_CONFIG.userSE_ECON)
 
     # # Indicators from ALDAR Prices
     df_aldar2 = pd.read_sql("select * from DS_ALDAR", con=conn)
@@ -1049,7 +1049,7 @@ def meed_awards_func():
     # conn_ld, c_ld = database_connection_user(userLD_ECON)
     # dsn_tns = cx_Oracle.makedsn(host, port, service_name=service_name)
     # conn = cx_Oracle.connect(user=userSE_ECON, password=password, dsn=dsn_tns, encoding="UTF-8")
-    conn = database_connection_user(DB_CONFIG.userSE_ECON)
+    conn,c = database_connection_user(DB_CONFIG.userSE_ECON)
 
     # # Indicators from MEED PROJECTS
     df_meed2 = pd.read_sql("select * from DS_MEED", con=conn)
@@ -1099,7 +1099,7 @@ def additional_pmi_cb(analytical_df):
 def additional_data_se_db(db_table):
     # dsn_tns = cx_Oracle.makedsn(host, port, service_name=service_name)
     # conn = cx_Oracle.connect(user=userSE_ECON, password=password, dsn=dsn_tns, encoding="UTF-8")
-    conn = database_connection_user(DB_CONFIG.userSE_ECON)
+    conn,c = database_connection_user(DB_CONFIG.userSE_ECON)
     c = conn.cursor()
     df = pd.read_sql(f"select * from {db_table}", con=conn)
     c.close()
@@ -1190,55 +1190,56 @@ def get_jv_tawteen(target):
         DataFrame with job vacancies data
     """
     print('Collecting data from Tawteen Job Vacancies')
+    print('Collecting data from Tawteen Job Vacancies')
+    #df_jv0 = pd.read_excel(cdir + '\\' + fname)
     db_config = get_db_config()
     conn_jv, c_ld = database_connection_user(db_config.userS_JobVac)
-    df_jv = pd.read_sql("select * from DS_JV_TAWTEEN_UNEMPLOYMENT", con=conn_jv)
-    
-    # remove "Posted by Mistake", "Moved to subsidiary"
+    df_jv = pd.read_sql(" select * from DS_JV_TAWTEEN_UNEMPLOYMENT", con = conn_jv)
+#    df_jv = df_jv1.copy()
+    # remove “Posted by Mistake”, “Moved to subsidiary”
     ind = df_jv[df_jv['Reason English'].isin(['Posted by Mistake','Moved to Subsidiary'])].index
     df_jv.drop(ind, inplace=True)
     df_jv_total = df_jv.groupby('Created Date').agg({'No of Vacancies':'sum'})
     df_jv_total.reset_index(inplace=True)
-    df_jv_total = df_jv_total.groupby(df_jv_total['Created Date'].dt.to_period('Y')).agg({'No of Vacancies':'sum'})
+    df_jv_total= df_jv_total.groupby(df_jv_total['Created Date'].dt.to_period('Y')).agg({'No of Vacancies':'sum'})
     df_jv_total.reset_index(inplace=True)
+    qs = df_jv_total['Created Date'].astype(str)
+    qs = pd.PeriodIndex(qs, freq='Y').to_timestamp()
+    qs = qs + pd.offsets.YearEnd(0)
     
-    # Process data based on target region
-    if target == 'TOTAL_UNEM':
-        df_jv_final = df_jv_total.copy()
-        df_jv_final.rename(columns={'No of Vacancies': 'TOTAL_UNEM'}, inplace=True)
-    else:
-        # Process region-specific data
-        df_jv_reg = df_jv.groupby(['Created Date', 'Region English']).agg({'No of Vacancies': 'sum'})
-        df_jv_reg.reset_index(inplace=True)
-        
-        # Map regions
-        region_map = {
-            'Abu Dhabi': 'Abu Dhabi',
-            'Al Ain': 'Al Ain',
-            'Al Dhafra': 'Al Dhafra',
-            'Western Region': 'Al Dhafra'
-        }
-        
-        df_jv_reg['Region'] = df_jv_reg['Region English'].map(region_map)
-        df_jv_reg = df_jv_reg.groupby(['Created Date', 'Region']).agg({'No of Vacancies': 'sum'})
-        df_jv_reg.reset_index(inplace=True)
-        
-        # Pivot to get regions as columns
-        df_jv_reg_pivot = df_jv_reg.pivot(index='Created Date', columns='Region', values='No of Vacancies')
-        df_jv_reg_pivot.reset_index(inplace=True)
-        
-        # Group by year
-        df_jv_reg_pivot = df_jv_reg_pivot.groupby(df_jv_reg_pivot['Created Date'].dt.to_period('Y')).agg({
-            'Abu Dhabi': 'sum',
-            'Al Ain': 'sum',
-            'Al Dhafra': 'sum'
-        })
-        df_jv_reg_pivot.reset_index(inplace=True)
-        
-        df_jv_final = df_jv_reg_pivot.copy()
+    df_jv_total['OBS_DT'] = qs
+    df_jv_total.set_index('OBS_DT',inplace=True)
+    fig, ax1 = plt.subplots()
+    ax1.plot(df_jv_total.index, df_jv_total['No of Vacancies'], 'r-o', label = 'Monthly', marker='.')
+    ax1.legend(loc = 'upper right')
+    ax1.set_ylabel('No of Vacancies - Total', color='g')
+    plt.show()
+    # add regions
+    regions = ['Abu Dhabi', 'Abu Dhabi - Abu Dhabi', 
+               'Abu Dhabi - Al Dhafra', 'Al Ain', 
+               'Al Ain - Al Dhafra', 'Al Dhafra', 
+               'Al Dhafra - Al Dhafra']
+    df_jv_regions = df_jv[df_jv['Vacancy Location'].isin(regions)]
+    df_jv_regions_count = df_jv_regions.groupby('Vacancy Location').agg({'No of Vacancies':'sum'})
+#    df_jv_regions_count.to_excel('temp.xlsx')
+    for region in regions:
+        df_temp = df_jv_regions[df_jv_regions['Vacancy Location']==region]
+        df_jv_reg_total = df_temp.groupby('Created Date').agg({'No of Vacancies':'sum'})
+        df_jv_reg_total.reset_index(inplace=True)
+        df_jv_reg_total= df_jv_reg_total.groupby(df_jv_reg_total['Created Date'].dt.to_period('Y')).agg({'No of Vacancies':'sum'})
+        df_jv_reg_total.reset_index(inplace=True)
+        qs = df_jv_reg_total['Created Date'].astype(str)
+        qs = pd.PeriodIndex(qs, freq='Y').to_timestamp()
+        qs = qs + pd.offsets.YearEnd(0)
+        df_jv_reg_total['OBS_DT'] = qs
+        df_jv_reg_total.set_index('OBS_DT',inplace=True)
+        df_jv_reg_total.rename(columns={'No of Vacancies':region}, inplace=True)
+        df_jv_total = pd.merge(df_jv_total, df_jv_reg_total[region], left_index=True,  right_index=True, how='outer')
+    df_jv_final = df_jv_total.drop(columns=['Created Date'])
     
-    # Convert period to datetime
-    df_jv_final['Created Date'] = df_jv_final['Created Date'].dt.to_timestamp()
-    df_jv_final.set_index('Created Date', inplace=True)
-    
+    fig, ax1 = plt.subplots()
+    ax1.plot(df_jv_total.index, df_jv_total['No of Vacancies'], 'r-o', color='black', linewidth = 3,  label='Job Vacancies')
+    ax1.legend(loc = 'upper right')
+    ax1.set_ylabel(target, color='g')
+    plt.show()
     return df_jv_final
